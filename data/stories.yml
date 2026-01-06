@@ -1,0 +1,37 @@
+version: "3.1"
+
+stories:
+  - story: greet and ask for information
+    steps:
+      - intent: greet
+      - action: utter_greet
+
+  - story: inquire about a specific scheme
+    steps:
+      - intent: ask_scheme_info
+      - action: action_get_scheme_info  # Calls the action to retrieve scheme info
+
+  - story: inquire about eligibility
+    steps:
+      - intent: ask_scheme_eligibility
+      - action: action_get_eligibility  # Calls the action to retrieve eligibility info
+
+  - story: inquire about benefits
+    steps:
+      - intent: ask_scheme_benefits
+      - action: utter_scheme_benefits
+
+  - story: ask about categories
+    steps:
+      - intent: ask_scheme_categories
+      - action: utter_scheme_categories
+
+  - story: goodbye
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: fallback response
+    steps:
+      - intent: fallback
+      - action: utter_fallback

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheme Savvy - AI Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header>
+            <div class="brand">
+                <span class="material-icons-outlined brand-icon">smart_toy</span>
+                <h1 class="logo">Scheme Savvy</h1>
+            </div>
+            <p style="color:var(--text-secondary);">Your intelligent assistant for government schemes.</p>
+        </header>
+
+        <div class="search-section">
+            <form id="queryForm">
+                <div class="search-box">
+                    <button type="button" id="micBtn" class="action-btn" title="Voice Search">
+                        <span class="material-icons-outlined">mic</span>
+                    </button>
+                    <input type="text" id="userQuery" placeholder="Ask anything (e.g. 'loans for farmers')..."
+                        autocomplete="off" required>
+                    <button type="submit" class="action-btn submit">
+                        <span class="material-icons-outlined">arrow_upward</span>
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <select id="langSelect" class="filter-select">
+                        <option value="English">🇬🇧 English</option>
+                        <option value="Hindi">🇮🇳 हिंदी (Hindi)</option>
+                        <option value="Tamil">🇮🇳 தமிழ் (Tamil)</option>
+                    </select>
+                </div>
+                <div id="statusMsg"></div>
+            </form>
+        </div>
+
+        <!-- AI Answer -->
+        <div id="aiSection" class="ai-section">
+            <div class="ai-header">
+                <span class="material-icons-outlined">auto_awesome</span>
+                <span>AI Summary</span>
+            </div>
+            <div id="aiContent" class="ai-content"></div>
+        </div>
+
+        <!-- Scheme Cards -->
+        <div id="resultsGrid" class="results-grid"></div>
+    </div>
+
+    <script>
+        const queryForm = document.getElementById('queryForm');
+        const userQuery = document.getElementById('userQuery');
+        const aiSection = document.getElementById('aiSection');
+        const aiContent = document.getElementById('aiContent');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const statusMsg = document.getElementById('statusMsg');
+        const micBtn = document.getElementById('micBtn');
+        const langSelect = document.getElementById('langSelect');
+
+        // --- Voice Input ---
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+
+            micBtn.onclick = () => {
+                if (langSelect.value === "Hindi") recognition.lang = 'hi-IN';
+                else if (langSelect.value === "Tamil") recognition.lang = 'ta-IN';
+                else recognition.lang = 'en-IN';
+                recognition.start();
+            };
+
+            recognition.onstart = () => { micBtn.classList.add('mic-active'); userQuery.placeholder = "Listening..."; };
+            recognition.onend = () => { micBtn.classList.remove('mic-active'); userQuery.placeholder = "Ask anything..."; };
+            recognition.onresult = (e) => {
+                userQuery.value = e.results[0][0].transcript;
+                setTimeout(() => queryForm.dispatchEvent(new Event('submit')), 500);
+            };
+        } else { micBtn.style.display = 'none'; }
+
+        // --- Search ---
+        queryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Reset UI
+            aiSection.style.display = 'none';
+            resultsGrid.innerHTML = '';
+            resultsGrid.style.opacity = '0.5';
+            statusMsg.textContent = `Thinking in ${langSelect.value}...`;
+
+            try {
+                const res = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: userQuery.value, language: langSelect.value })
+                });
+                const data = await res.json();
+
+                resultsGrid.style.opacity = '1';
+                statusMsg.textContent = '';
+
+                if (data.status === 'success') {
+                    // 1. Show AI Answer
+                    if (data.ai_answer) {
+                        aiContent.textContent = data.ai_answer;
+                        aiSection.style.display = 'block';
+                    }
+
+                    // 2. Show Cards
+                    if (data.schemes && data.schemes.length > 0) {
+                        renderCards(data.schemes, data.keywords);
+                    } else {
+                        resultsGrid.innerHTML = `<div style="text-align:center; grid-column:1/-1; color:#6b7280;">No schemes found.</div>`;
+                    }
+                } else {
+                    statusMsg.textContent = `Error: ${data.message}`;
+                }
+            } catch (err) {
+                console.error(err);
+                resultsGrid.style.opacity = '1';
+                statusMsg.textContent = "Connection failed.";
+            }
+        });
+
+        function highlight(text, keywords) {
+            if (!text || !keywords) return text;
+            const safe = keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            const regex = new RegExp(`\\b(${safe.join('|')})\\b`, 'gi');
+            return text.replace(regex, m => `<mark>${m}</mark>`);
+        }
+
+        function renderCards(schemes, keywords) {
+            schemes.forEach((s, idx) => {
+                const isWeb = s.source === 'From the Web';
+                const summary = s.summary || {};
+                const detailsId = `details-${idx}`;
+
+                // Build snippets
+                let snippets = '';
+
+                if (summary.objective) {
+                    snippets += `<div class="info-snippet"><span class="info-label">Objective</span>${highlight(summary.objective, keywords)}</div>`;
+                } else if (isWeb && s.details) {
+                    snippets += `<div class="info-snippet">${highlight(s.details, keywords)}</div>`;
+                }
+
+                // Keywords/Benefits
+                if (Array.isArray(summary.benefits) && summary.benefits.length > 0) {
+                    snippets += `<div class="info-snippet"><span class="info-label">Keywords</span>${summary.benefits.slice(0, 3).join(', ')}...</div>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'scheme-card';
+                card.style.animation = `fadeIn 0.5s ease backwards ${idx * 0.1}s`;
+
+                // Use ID if available for the link
+                const detailUrl = s.id ? `/scheme/${s.id}` : '#';
+                const btnAttr = s.id ? `onclick="window.open('${detailUrl}', '_blank')"` : "disabled title='Offline ID missing'";
+
+                card.innerHTML = `
+                    <div class="card-top">
+                        <h3 class="scheme-title">${s.scheme_name}</h3>
+                        <span class="source-badge">${isWeb ? 'WEB' : 'DB'}</span>
+                    </div>
+                    ${snippets}
+                    <div class="card-footer">
+                        <button class="more-btn" ${btnAttr}>View Details & Chat ↗</button>
+                        ${s.scheme_link ? `<a href="${s.scheme_link}" target="_blank" class="link-btn">Official Link ↗</a>` : ''}
+                    </div>
+                `;
+                resultsGrid.appendChild(card);
+            });
+        }
+
+        // The toggleDetails function is no longer needed as details open in a new tab.
+        // function toggleDetails(id, btn) {
+        //     const el = document.getElementById(id);
+        //     if (el.classList.contains('hidden')) {
+        //         el.classList.remove('hidden');
+        //         btn.textContent = 'Hide Details';
+        //     } else {
+        //         el.classList.add('hidden');
+        //         btn.textContent = 'View Details';
+        //     }
+        // }
+    </script>
+</body>
+
+</html>

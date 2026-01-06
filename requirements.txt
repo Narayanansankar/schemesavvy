@@ -1,0 +1,13 @@
+flask
+flask-sqlalchemy
+psycopg2-binary
+python-dotenv
+sentence-transformers
+faiss-cpu
+google-search-results
+boto3
+ollama
+nltk
+pandas
+numpy
+bs4

@@ -1,0 +1,55 @@
+version: "3.1"
+
+nlu:
+  - intent: greet
+    examples: |
+      - Hi
+      - Hello
+      - Good morning
+      - Hey there
+      - Hii
+      - Helllo
+
+  - intent: ask_scheme_info
+    examples: |
+      - Tell me about the PM Awas Yojana
+      - What is the Kisan Credit Card scheme?
+      - Can you explain the Ujjwala scheme?
+      - Teel me about PM Awas Yojna
+      - Whatis the Kisan Credit Card skem?
+
+  - intent: ask_scheme_eligibility
+    examples: |
+      - Who is eligible for the PM Kisan scheme?
+      - What is the eligibility for the Pradhan Mantri Awas Yojana?
+      - Do I qualify for the Ayushman Bharat scheme?
+      - Are there any age restrictions for the Ujjwala scheem?
+
+  - intent: ask_scheme_benefits
+    examples: |
+      - What benefits does the PM Kisan scheme offer?
+      - Tell me about the benefits of the PM Awas Yojana.
+      - How does the Ujjwala scheme help families?
+      - What support can I get from the Kisan Credit Card?
+
+  - intent: ask_scheme_categories
+    examples: |
+      - What are the categories of schemes available?
+      - Show me schemes for education.
+      - Are there any health care schemes?
+      - List the schemes for women empowerment.
+
+  - intent: goodbye
+    examples: |
+      - Goodbye
+      - See you later
+      - Bye
+      - Take care
+      - Gdbye
+
+  - intent: fallback
+    examples: |
+      - I don't understand what you're saying.
+      - Can you help me with something else?
+      - What do you mean?
+      - Explain it again.

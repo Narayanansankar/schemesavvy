@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ scheme.scheme_name }} - Scheme Savvy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        body {
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            flex: 1;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        /* Left: Content */
+        .content-pane {
+            padding: 40px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+            background: #ffffff;
+        }
+
+        .scheme-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .scheme-title-lg {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .meta-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .meta-tag {
+            background: #f1f5f9;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .text-block {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #334155;
+            white-space: pre-wrap;
+            /* Preserve spacing */
+        }
+
+        /* Right: Chat */
+        .chat-pane {
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg-ai {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid var(--border-color);
+            color: #1e293b;
+            border-bottom-left-radius: 2px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .detail-layout {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+            }
+
+            .content-pane {
+                height: auto;
+                border-right: none;
+            }
+
+            .chat-pane {
+                height: 500px;
+                border-left: none;
+                border-top: 2px solid var(--border-color);
+            }
+
+            body {
+                overflow: auto;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header
+        style="padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <a href="/"
+                style="text-decoration:none; color:var(--text-secondary); display:flex; align-items:center; gap:5px;">
+                <span class="material-icons-outlined">arrow_back</span> Back
+            </a>
+            <h2 style="font-size:1.2rem; margin:0 15px; color:var(--text-secondary);">|</h2>
+            <span style="font-weight:600; color:var(--primary-color);">Scheme Savvy Detail View</span>
+        </div>
+    </header>
+
+    <div class="detail-layout">
+        <!-- Left: Scheme Details -->
+        <div class="content-pane">
+            <div class="scheme-header">
+                <h1 class="scheme-title-lg">{{ scheme.scheme_name }}</h1>
+                <div class="meta-row">
+                    <span class="meta-tag">{{ scheme.ministry_name or 'Unknown Ministry' }}</span>
+                    <span class="meta-tag">{{ scheme.state_name or 'Center/State' }}</span>
+                </div>
+                {% if scheme.scheme_link %}
+                <a href="{{ scheme.scheme_link }}" target="_blank" class="link-btn"
+                    style="display:inline-flex; align-items:center; gap:5px;">
+                    Visit Official Website <span class="material-icons-outlined"
+                        style="font-size:16px;">open_in_new</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="content-section">
+                <h3 class="section-title">Description</h3>
+                <div class="text-block">{{ scheme.details }}</div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="section-title">Eligibility Criteria</h3>
+                <div class="text-block">{{ scheme.eligibility }}</div>
+            </div>
+
+            {% if scheme.benefits %}
+            <div class="content-section">
+                <h3 class="section-title">Benefits</h3>
+                <div class="text-block">{{ scheme.benefits }}</div>
+            </div>
+            {% endif %}
+
+            {% if scheme.documents_required %}
+            <div class="content-section">
+                <h3 class="section-title">Documents Required</h3>
+                <div class="text-block">{{ scheme.documents_required }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right: Context Chat -->
+        <div class="chat-pane">
+            <div class="chat-header">
+                <span class="material-icons-outlined" style="color:var(--accent-color);">smart_toy</span>
+                <div>
+                    <h3 style="font-size:1rem; margin:0;">Scheme Assistant</h3>
+                    <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">Ask questions about this
+                        specific scheme</p>
+                </div>
+            </div>
+
+            <div id="chatMessages" class="chat-messages">
+                <div class="message msg-ai">
+                    Hello! I have read the details of <b>{{ scheme.scheme_name }}</b>. What would you like to know?
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <form id="chatForm" class="input-wrapper">
+                    <input type="text" id="chatInput" class="chat-input"
+                        placeholder="e.g. 'Am I eligible if I am a student?'" autocomplete="off">
+                    <button type="submit" class="send-btn">
+                        <span class="material-icons-outlined">send</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Store scheme text for context (Concatenated important fields)
+        const schemeContext = `
+    Name: {{ scheme.scheme_name }}
+    Details: {{ scheme.details | replace('\n', ' ') }}
+    Eligibility: {{ scheme.eligibility | replace('\n', ' ') }}
+    Benefits: {{ scheme.benefits | replace('\n', ' ') }}
+    `;
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = chatInput.value.trim();
+            if (!query) return;
+
+            // 1. Add User Message
+            appendMessage(query, 'user');
+            chatInput.value = '';
+
+            // 2. Loading State
+            const loadingId = appendMessage('Thinking...', 'ai', true);
+
+            try {
+                const res = await fetch('/chat_scheme', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query,
+                        scheme_text: schemeContext
+                    })
+                });
+                const data = await res.json();
+
+                // 3. Update AI Message
+                removeMessage(loadingId);
+                appendMessage(data.response, 'ai');
+            } catch (err) {
+                removeMessage(loadingId);
+                appendMessage("Sorry, I encountered an error.", 'ai');
+            }
+        });
+
+        function appendMessage(text, type, isLoading = false) {
+            const div = document.createElement('div');
+            div.className = `message msg-${type}`;
+            div.innerHTML = text; // simple text
+            if (isLoading) div.style.opacity = '0.7';
+            div.id = 'msg-' + Date.now();
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return div.id;
+        }
+
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+    </script>
+
+</body>
+
+</html>

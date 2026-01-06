@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheme Results</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Matching Schemes</h1>
+        {% for scheme in schemes %}
+        <div class="scheme-card">
+            <h2>{{ scheme.scheme_name }}</h2>
+            <p><strong>Details:</strong> {{ scheme.details }}</p>
+            <p><strong>Eligibility:</strong> {{ scheme.eligibility }}</p>
+            <p><strong>Benefits:</strong> {{ scheme.benefits }}</p>
+            <p><strong>Application Process:</strong> {{ scheme.application_process }}</p>
+            <p><strong>State:</strong> {{ scheme.state }}</p>
+        </div>
+        <hr>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -10,6 +10,18 @@ SchemeSavvy is an AI-powered conversational platform designed to bridge the gap 
 - **Premium UI**: "Perplexity-style" modern interface with glassmorphism, sticky search, and masonry grid.
 - **Real-time Context**: Filters results intelligently based on State and Category (e.g., boosting "Center" schemes when searching for a State).
 
+## 📊 Data Sources & Integration
+The core intelligence of SchemeSavvy is built upon real-world, high-veracity data:
+
+- **Primary Source**: **[myschemes.gov.in](https://www.myschemes.gov.in/)** (National Portal for Government Schemes).
+- **Data Acquisition**: A custom scraping pipeline was developed to aggregate over **6,000+ schemes** across Central and State levels.
+- **Structured Attributes**: The dataset includes rich metadata for every scheme:
+  - *Scheme Details & Benefits*
+  - *Eligibility Criteria*
+  - *Application Process*
+  - *Required Documents*
+- **Data Flow**: Scraped data -> Cleaned & Structured (CSV) -> Ingested into **PostgreSQL** -> Embeddings generated for **FAISS**.
+
 ## 🛠️ Technology Stack
 - **Backend**: Python (Flask), SQLAlchemy, PostgreSQL
 - **AI/ML**: 
@@ -62,10 +74,7 @@ SchemeSavvy is an AI-powered conversational platform designed to bridge the gap 
 - `templates/`: HTML templates for Search (`index.html`) and Details (`detail.html`).
 
 ## 🏆 Assessment Highlights
-- **Vibe Coding**: Built with a focus on speed and user experience ("Vibe").
-- **External Data**: Integrates live web search (SerpAPI) when local results are insufficient.
-- **Chatbot**: Fully functional contextual assistant.
-- **Real World**: Solves the language barrier with Hindi/Tamil support.
-
----
-*Built for the Sequoia Internship Assessment.*
+- **Real-World Data**: Successfully integrated external data scraped from `myschemes.gov.in` and stored in PostgreSQL (Bonus Requirement).
+- **RAG Architecture**: Implements a complete Retrieval-Augmented Generation flow using Vector Search (Retrieval) and AWS Bedrock (Generation).
+- **Chatbot Interface**: A fully functional contextual assistant that simplifies complex policy language.
+- **Accessibility**: Solves the language barrier with Hindi/Tamil support.
